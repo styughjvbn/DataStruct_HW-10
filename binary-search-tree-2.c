@@ -130,6 +130,7 @@ void recursiveInorder(Node* ptr)//재귀적으로 중위순회
 
 void iterativeInorder(Node* node)//반복문을 이용하여 중위순회
 {
+	top=-1;
 	while(1){//계속 반복한다.
 		for(;node;node=node->left)//노드의 왼쪽 자식노드를 스택에 푸쉬하며 왼쪽 자식노드가 없는 노드까지 간다.
 			push(node);
@@ -142,6 +143,8 @@ void iterativeInorder(Node* node)//반복문을 이용하여 중위순회
 
 void levelOrder(Node* ptr)
 {
+	front = -1;
+	rear = -1;
 	if (!ptr) return;//트리가 비었다면 함수를 종료한다.
 	enQueue(ptr);//루트노드를 인큐한다.
 	while(1){//반복문을 실행한다.
@@ -201,11 +204,66 @@ int insert(Node* head, int key)
 	return 1;
 }
 
-
-int deleteNode(Node* head, int key)
+int deleteNode(Node* head, int key)//노드를 삭제한다.
 {
+	Node* tmp = head->left;//삭제할 노드를 찾는다.
+	Node* tmp_ = head;//삭제한 노드의 부모노드를 찾는다.
+	Node* Rtree=NULL;
+	Node* Rtree_sub=NULL;
+	Node* Rtree_parents=NULL;
+	while (tmp) {//삭제할 노드를 찾을 때까지 반복한다.
+		if (key == tmp->key)//삭제할 키값을 가지는 노드를 찾았다면
+			break;//반복문을 종료한다.
+		else if (key < tmp->key) {//삭제할 키값이 비교하는 노드보다 작다면 왼쪽으로 이동한다.
+			tmp_ = tmp;//부모노드를 저장한다.
+			tmp = tmp->left;//왼쪽자식노드로 이동한다.
+		}
+		else {//삭제할 키값이 비교하는 노드보다 크다면
+			tmp_ = tmp;//부모노드를 저장한다.
+			tmp = tmp->right;//오른쪽 자식노드로 이동한다.
+		}
+	}
+	if (!tmp) {//노드를 찾지못했다면 메시지를 출력하고 함수를 종료한다.
+		printf("\n Cannot find the node [%d]\n", key);
+		return 0;
+	}
+	else if (tmp->left != NULL && tmp->right != NULL) {//노드의 왼쪽, 오른쪽 자식노드가 둘다 존재할 경우 오른쪽 트리에서 가장 작은 값이랑 바꾼다.
+		for(Rtree=tmp->right;Rtree->left!=NULL;Rtree=Rtree->left){//삭제할 노드의 오른쪽 서브트리에서 가장 작은 값을 가지는 노드를 찾는다.
+			Rtree_parents=Rtree;
+		}
+		Rtree_sub=Rtree->right;
+		Rtree->right=tmp->right;
+		Rtree->left=tmp->left;
+		if (key < tmp_->key)//삭제할 키값이 부모노드의 키값보다 작다면
+			tmp_->left=Rtree;//부모노드의 왼쪽 자식링크에 오른쪽 트리의 가장 작은 값을 가지는 노드를 연결한다.
+		else//크다면
+			tmp_->right=Rtree;//부모노드의 오른쪽 자식링크에 오른쪽 트리의 가장 작은 값을 가지는 노드를 연결한다.
+		free(tmp);
+		if(Rtree_sub)//가장 작은 값을 가지는 노드가 오른쪽 서브트리를 가지고 있다면
+			Rtree_parents->left=Rtree_sub;
+	}
+	else if(tmp->left == NULL && tmp->right == NULL){//노드가 리프노드일 경우
+		if (key < tmp_->key)//삭제할 키값이 부모노드의 키값보다 작다면
+			tmp_->left = NULL;//왼쪽 자식노드의 링크를 NULL로 만든다.
+		else//삭제할 키값이 부모노드의 키값보다 크다면
+			tmp_->right = NULL;//오른쪽 자식노드의 링크를 NULL로 만든다.
+		free(tmp);//해당 키값을 가지는 노드를 삭제한다.
+	}
+	else{//노드에 한개의 자식노드만 존재할 경우
+		if (key < tmp_->key)//삭제할 키값이 부모노드의 키값보다 작고
+			if(tmp->left==NULL)//왼쪽 자식노드가 없다면
+				tmp_->left = tmp->right;//부모노드의 왼쪽링크에 삭제할 노드의 오른쪽 자식노드를 저장한다.
+			else//오른쪽 자식노드가 없다면
+				tmp_->left = tmp->left;//부모노드의 왼쪽링크에 삭제할 노드의 왼쪽 자식노드를 저장한다.
+		else//삭제할 키값이 부모노드의 키값보다 크고
+			if(tmp->left==NULL)//왼쪽 자식노드가 없다면
+				tmp_->right=tmp->right;//부모노드의 오른쪽링크에 삭제할 노드의 오른쪽 자식노드를 저장한다.
+			else//오른쪽 자식노드가 없다면
+				tmp_->right = tmp->left;//부모노드의 오른쪽링크에 삭제할 노드의 왼쪽 자식노드를 저장한다.
+		free(tmp);//해당 키값을 가지는 노드를 삭제한다.
+	}
+	return 0;//함수를 종료한다.
 }
-
 void freeNode(Node* ptr)
 {
 	if(ptr) {//후위순회방식으로 해제한다.
