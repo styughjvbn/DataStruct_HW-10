@@ -161,7 +161,6 @@ void levelOrder(Node* ptr)
 {
 }
 
-
 int insert(Node* head, int key)
 {
 	Node* newNode = (Node*)malloc(sizeof(Node));
@@ -210,10 +209,9 @@ int deleteNode(Node* head, int key)
 {
 }
 
-
 void freeNode(Node* ptr)
 {
-	if(ptr) {
+	if(ptr) {//후위순회방식으로 해제한다.
 		freeNode(ptr->left);
 		freeNode(ptr->right);
 		free(ptr);
@@ -223,41 +221,47 @@ void freeNode(Node* ptr)
 int freeBST(Node* head)
 {
 
-	if(head->left == head)
+	if(head->left == head)//해드노드라면 해드 노드를 해제하고 함수를 종료한다.
 	{
 		free(head);
 		return 1;
 	}
 
-	Node* p = head->left;
+	Node* p = head->left;//루트노드부터 해제한다.
 
-	freeNode(p);
+	freeNode(p);//루트노드부터 해제한다.
 
-	free(head);
+	free(head);//마지막으로 해드노드를 해제한다.
 	return 1;
 }
 
-
-
-Node* pop()
-{
+Node* pop(){
+	if(top<=-1)//스택이 비었다면 NULL리턴
+		return NULL;
+	else//아니라면 스택의 top 리턴
+		return stack[top--];
 }
 
 void push(Node* aNode)
 {
+	if(top+1>=MAX_STACK_SIZE)//스택이 꽉찼다면
+		printf("스택이 꽉찼습니다\n");//안내메시지출력
+	else//아니라면 top에 저장
+		stack[++top]=aNode;
 }
-
-
 
 Node* deQueue()
 {
+	if(front==rear)//큐가 비었다면
+		return NULL;//NULL 리턴
+	else//아니라면 front 리턴
+		return queue[++front];
 }
 
 void enQueue(Node* aNode)
 {
+	if(rear+1>=MAX_QUEUE_SIZE)//큐가 꽉찼다면
+		printf("큐가 꽉찼습니다\n");//안내메시지출력
+	else//아니라면 rear에 저장
+		queue[++rear]=aNode;
 }
-
-
-
-
-
