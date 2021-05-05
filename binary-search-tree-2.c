@@ -7,11 +7,8 @@
  * at Chungbuk National University
  *
  */
-
 #include <stdio.h>
 #include <stdlib.h>
-
-
 
 typedef struct node {
 	int key;
@@ -23,7 +20,6 @@ typedef struct node {
 #define MAX_STACK_SIZE		20
 Node* stack[MAX_STACK_SIZE];
 int top = -1;
-
 Node* pop();
 void push(Node* aNode);
 
@@ -32,10 +28,8 @@ void push(Node* aNode);
 Node* queue[MAX_QUEUE_SIZE];
 int front = -1;
 int rear = -1;
-
 Node* deQueue();
 void enQueue(Node* aNode);
-
 
 int initializeBST(Node** h);
 
@@ -48,11 +42,6 @@ int deleteNode(Node* head, int key);  /* delete the node for the key */
 int freeBST(Node* head); /* free all memories allocated to the tree */
 
 /* you may add your own defined functions if necessary */
-
-
-void printStack();
-
-
 
 int main()
 {
@@ -72,6 +61,7 @@ int main()
 		printf("----------------------------------------------------------------\n");
 
 		printf("Command = ");
+		fflush(stdout);
 		scanf(" %c", &command);
 
 		switch(command) {
@@ -83,37 +73,30 @@ int main()
 			break;
 		case 'i': case 'I':
 			printf("Your Key = ");
+			fflush(stdout);
 			scanf("%d", &key);
 			insert(head, key);
 			break;
 		case 'd': case 'D':
 			printf("Your Key = ");
+			fflush(stdout);
 			scanf("%d", &key);
 			deleteNode(head, key);
 			break;
-
 		case 'r': case 'R':
 			recursiveInorder(head->left);
 			break;
 		case 't': case 'T':
 			iterativeInorder(head->left);
 			break;
-
 		case 'l': case 'L':
 			levelOrder(head->left);
 			break;
-
-		case 'p': case 'P':
-			printStack();
-			break;
-
 		default:
 			printf("\n       >>>>>   Concentration!!   <<<<<     \n");
 			break;
 		}
-
 	}while(command != 'q' && command != 'Q');
-
 	return 1;
 }
 
@@ -136,9 +119,7 @@ int initializeBST(Node** h) {
 	return 1;
 }
 
-
-
-void recursiveInorder(Node* ptr)
+void recursiveInorder(Node* ptr)//재귀적으로 중위순회
 {
 	if(ptr) {
 		recursiveInorder(ptr->left);
@@ -147,18 +128,34 @@ void recursiveInorder(Node* ptr)
 	}
 }
 
-/**
- * textbook: p 224s
- */
-void iterativeInorder(Node* node)
+void iterativeInorder(Node* node)//반복문을 이용하여 중위순회
 {
+	while(1){//계속 반복한다.
+		for(;node;node=node->left)//노드의 왼쪽 자식노드를 스택에 푸쉬하며 왼쪽 자식노드가 없는 노드까지 간다.
+			push(node);
+		node=pop();//왼쪽 자식노드가 없는 노드를 만나면 그 노드를 빼낸다.
+		if(!node)break;//빼낼 노드가 없다면 모든 순회가 끝난것이므로 반복문을 나가고 함수를 종료한다.
+		printf(" [%d] ", node->key);//중위순회이므로 빼낸 노드의 키값을 출력한다.
+		node = node->right;//빼낸 노드의 오른쪽 자식노드부터 다시 위의 반복문을 실행한다.
+	}
 }
 
-/**
- * textbook: p 225
- */
 void levelOrder(Node* ptr)
 {
+	if (!ptr) return;//트리가 비었다면 함수를 종료한다.
+	enQueue(ptr);//루트노드를 인큐한다.
+	while(1){//반복문을 실행한다.
+		ptr=deQueue();//큐에서 한개의 노드를 뺀다.
+		if(ptr){//큐에서 뺀 노드가 존재한다면
+			printf("[ %d ]",ptr->key);//레벨 순회방식이므로 우선적으로 노드의 키값을 출력한다.
+			if(ptr->left)//뺸 노드의 왼쪽 자식노드가 존재한다면
+				enQueue(ptr->left);//왼쪽 자식노드를 인큐한다.
+			if(ptr->right)//뺀 노드의 오른쪽 자식노드가 존재한다면
+				enQueue(ptr->right);//오른쪽 자식노드를 인큐한다.
+		}//큐에서 뺀 노드가 존재하지않는다면 트리의 모든 노드를 출력한 것이기 때문에 반복문을 멈추고 함수를 종료한다.
+		else
+			break;
+	}
 }
 
 int insert(Node* head, int key)
