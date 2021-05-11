@@ -47,7 +47,10 @@ int main()
 {
 	char command;
 	int key;
+	int initial = 0;//초기화가 진행됐는지 확인한다.
 	Node* head = NULL;
+
+	printf("[----- [서종원] [2018038031] -----]\n");
 
 	do{
 		printf("\n\n");
@@ -67,30 +70,49 @@ int main()
 		switch(command) {
 		case 'z': case 'Z':
 			initializeBST(&head);
+			initial++;
 			break;
 		case 'q': case 'Q':
-			freeBST(head);
+			if(initial)
+				freeBST(head);
 			break;
 		case 'i': case 'I':
+			if(initial){
 			printf("Your Key = ");
 			fflush(stdout);
 			scanf("%d", &key);
 			insert(head, key);
+			}
+			else
+				printf("초기화를 먼저 실행해주세요\n");
 			break;
 		case 'd': case 'D':
+			if(initial){
 			printf("Your Key = ");
 			fflush(stdout);
 			scanf("%d", &key);
 			deleteNode(head, key);
+			}
+			else
+				printf("초기화를 먼저 실행해주세요\n");
 			break;
 		case 'r': case 'R':
-			recursiveInorder(head->left);
+			if(initial)
+				recursiveInorder(head->left);
+			else
+				printf("초기화를 먼저 실행해주세요\n");
 			break;
 		case 't': case 'T':
-			iterativeInorder(head->left);
+			if(initial)
+				iterativeInorder(head->left);
+			else
+				printf("초기화를 먼저 실행해주세요\n");
 			break;
 		case 'l': case 'L':
-			levelOrder(head->left);
+			if(initial)
+				levelOrder(head->left);
+			else
+				printf("초기화를 먼저 실행해주세요\n");
 			break;
 		default:
 			printf("\n       >>>>>   Concentration!!   <<<<<     \n");
@@ -130,7 +152,7 @@ void recursiveInorder(Node* ptr)//재귀적으로 중위순회
 
 void iterativeInorder(Node* node)//반복문을 이용하여 중위순회
 {
-	top=-1;
+	top=-1;//스택의 탑을 초기화한다.
 	while(1){//계속 반복한다.
 		for(;node;node=node->left)//노드의 왼쪽 자식노드를 스택에 푸쉬하며 왼쪽 자식노드가 없는 노드까지 간다.
 			push(node);
@@ -143,7 +165,7 @@ void iterativeInorder(Node* node)//반복문을 이용하여 중위순회
 
 void levelOrder(Node* ptr)
 {
-	front = -1;
+	front = -1;//큐의 프론트와 리어를 초기화한다.
 	rear = -1;
 	if (!ptr) return;//트리가 비었다면 함수를 종료한다.
 	enQueue(ptr);//루트노드를 인큐한다.
@@ -163,12 +185,12 @@ void levelOrder(Node* ptr)
 
 int insert(Node* head, int key)
 {
-	Node* newNode = (Node*)malloc(sizeof(Node));
+	Node* newNode = (Node*)malloc(sizeof(Node));//삽입될 노드이다.
 	newNode->key = key;
 	newNode->left = NULL;
 	newNode->right = NULL;
 
-	if (head->left == NULL) {
+	if (head->left == NULL) {//트리가 비어있다면 해드노드에 연결하고 함수를 종료한다.
 		head->left = newNode;
 		return 1;
 	}
@@ -207,14 +229,14 @@ int insert(Node* head, int key)
 int deleteNode(Node* head, int key)//노드를 삭제한다.
 {
 	Node* tmp = head->left;//삭제할 노드를 찾는다.
-	Node* tmp_ = head;//삭제한 노드의 부모노드를 찾는다.
-	Node* Rtree=NULL;
-	Node* Rtree_sub=NULL;
-	Node* Rtree_parents=NULL;
+	Node* tmp_ = head;//삭제한 노드의 부모노드를 저장한다.
+	Node* Rtree=NULL;//삭제할 노드의 오른쪽 서브트리에서 가장 작은 값을 가지는 노드를 저장한다.
+	Node* Rtree_sub=NULL;//삭제할 노드의 오른쪽 서브트리에서 가장 작은 값을 가지는 노드가 오른쪽 서브트리를 가지고있다면 오른쪽 자식노드를 저장한다.
+	Node* Rtree_parents=NULL;//삭제할 노드의 오른쪽 서브트리의 가장 작은 값을 가지는 노드의 부모노드를 저장한다.
 	while (tmp) {//삭제할 노드를 찾을 때까지 반복한다.
 		if (key == tmp->key)//삭제할 키값을 가지는 노드를 찾았다면
 			break;//반복문을 종료한다.
-		else if (key < tmp->key) {//삭제할 키값이 비교하는 노드보다 작다면 왼쪽으로 이동한다.
+		else if (key < tmp->key) {//삭제할 키값이 비교하는 노드보다 작다면
 			tmp_ = tmp;//부모노드를 저장한다.
 			tmp = tmp->left;//왼쪽자식노드로 이동한다.
 		}
@@ -231,26 +253,32 @@ int deleteNode(Node* head, int key)//노드를 삭제한다.
 		for(Rtree=tmp->right;Rtree->left!=NULL;Rtree=Rtree->left){//삭제할 노드의 오른쪽 서브트리에서 가장 작은 값을 가지는 노드를 찾는다.
 			Rtree_parents=Rtree;
 		}
-		Rtree_sub=Rtree->right;
-		Rtree->right=tmp->right;
-		Rtree->left=tmp->left;
-		if (key < tmp_->key)//삭제할 키값이 부모노드의 키값보다 작다면
+		Rtree_sub=Rtree->right;/*오른쪽 서브트리에서 가장 작은 값을 가지는 노드의 왼쪽 자식노드는
+		절대 존재하지 않고 오른쪽 자식노드는 존재할 수도 있다 이때, 오른쪽 자식노드가 존재한다면 오른쪽
+		자식노드를 가장작은 값을 가지는 노드의 부모노드의 왼쪽 자식노드에 연결한다.*/
+
+		Rtree->left=tmp->left;//가장 작은 값을 가지는 노드와 삭제할노드를 바꾼다.
+		if(!Rtree_parents)//가장 작은 값을 가지는 노드의 부모노드가 없다면 즉, 오른쪽 서브트리에 노드가 하나밖에 없다면
+			Rtree->right=NULL;//가장 작은 값을 가지는 노드의 오른쪽 자식노드를 NULL로 만든다.
+		else{//아니라면 정상적으로 바꾼다.
+			Rtree->right=tmp->right;
+			Rtree_parents->left = Rtree_sub;//가장 작은 값을 가지는 노드의 오른쪽 자식노드와 부모노드를 연결한다.
+		}
+		free(tmp);//삭제할 노드를 해제한다.
+		if (tmp_==head||key < tmp_->key)//삭제할 키값이 부모노드의 키값보다 작거나 부모노드가 해드노드라면
 			tmp_->left=Rtree;//부모노드의 왼쪽 자식링크에 오른쪽 트리의 가장 작은 값을 가지는 노드를 연결한다.
 		else//크다면
 			tmp_->right=Rtree;//부모노드의 오른쪽 자식링크에 오른쪽 트리의 가장 작은 값을 가지는 노드를 연결한다.
-		free(tmp);
-		if(Rtree_sub)//가장 작은 값을 가지는 노드가 오른쪽 서브트리를 가지고 있다면
-			Rtree_parents->left=Rtree_sub;
 	}
 	else if(tmp->left == NULL && tmp->right == NULL){//노드가 리프노드일 경우
-		if (key < tmp_->key)//삭제할 키값이 부모노드의 키값보다 작다면
+		if (tmp_==head||key < tmp_->key)//삭제할 키값이 부모노드의 키값보다 작거나 부모노드가 해드노드라면
 			tmp_->left = NULL;//왼쪽 자식노드의 링크를 NULL로 만든다.
 		else//삭제할 키값이 부모노드의 키값보다 크다면
 			tmp_->right = NULL;//오른쪽 자식노드의 링크를 NULL로 만든다.
 		free(tmp);//해당 키값을 가지는 노드를 삭제한다.
 	}
 	else{//노드에 한개의 자식노드만 존재할 경우
-		if (key < tmp_->key)//삭제할 키값이 부모노드의 키값보다 작고
+		if (tmp_==head||key < tmp_->key)//삭제할 키값이 부모노드의 키값보다 작거나 부모노드가 해드노드라면
 			if(tmp->left==NULL)//왼쪽 자식노드가 없다면
 				tmp_->left = tmp->right;//부모노드의 왼쪽링크에 삭제할 노드의 오른쪽 자식노드를 저장한다.
 			else//오른쪽 자식노드가 없다면
